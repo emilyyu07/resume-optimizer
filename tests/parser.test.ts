@@ -59,6 +59,37 @@ describe("parsers", () => {
         { id: "skill-dup", name: "TypeScript - duplicate" }
       ]
     } as unknown;
-    expect(() => parser.parse(input)).toThrowError(/Duplicate fact id detected/);
+    expect(() => parser.parse(input)).toThrowError(/duplicate candidate entity IDs/i);
+  });
+
+  it("throws with aggregate duplicate ids across entity groups", () => {
+    const parser = new CandidateParser();
+    const input = {
+      id: "candidate-dup-2",
+      name: "Dup 2",
+      experiences: [
+        {
+          id: "exp-1",
+          title: "Software Engineer",
+          company: "Acme",
+          startDate: "2022-01-01",
+          bullets: ["Built APIs"],
+          skills: ["TypeScript"]
+        },
+        {
+          id: "exp-1",
+          title: "Software Engineer II",
+          company: "Acme",
+          startDate: "2023-01-01",
+          bullets: ["Built more APIs"],
+          skills: ["Node.js"]
+        }
+      ],
+      skills: [
+        { id: "skill-1", name: "TypeScript" },
+        { id: "skill-1", name: "Node.js" }
+      ]
+    } as unknown;
+    expect(() => parser.parse(input)).toThrowError(/experiences: exp-1; skills: skill-1/i);
   });
 });

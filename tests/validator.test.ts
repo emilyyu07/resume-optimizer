@@ -59,6 +59,28 @@ describe("validators", () => {
     expect(() => validator.validate(resumeFixture, registry)).toThrowError(/Evidence validation failed/);
   });
 
+  it("throws when fact id is missing from evidence registry", () => {
+    const validator = new EvidenceValidator();
+    const registry = new Map<string, { sourcePath: string; sourceSnapshot: string }>();
+    for (const s of resumeFixture.sections) {
+      for (const e of s.entries) {
+        for (const f of e.facts) {
+          registry.set(f.id, { sourcePath: f.metadata.sourcePath, sourceSnapshot: f.metadata.sourceSnapshot });
+        }
+      }
+    }
+    registry.delete("experience:exp-1:bullet:0");
+
+    try {
+      validator.validate(resumeFixture, registry);
+      throw new Error("expected evidence validation to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      const validationError = error as ValidationError;
+      expect(validationError.details.some((detail) => detail.code === "fact_id_not_registered")).toBe(true);
+    }
+  });
+
   it("validates resume shape and limits", () => {
     const resumeValidator = new ResumeValidator();
     const schemaValidator = new SchemaValidator();
