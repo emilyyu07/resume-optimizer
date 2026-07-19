@@ -197,6 +197,18 @@ export const resumeFixture: Resume = {
           evidenceIds: ["skill:skill-1"]
         }
       ]
+    },
+    {
+      id: "education",
+      type: "education",
+      title: "Education",
+      entries: []
+    },
+    {
+      id: "personal_info",
+      type: "personal_info",
+      title: "Personal information",
+      entries: []
     }
   ]
 };

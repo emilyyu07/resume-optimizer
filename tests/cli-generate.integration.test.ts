@@ -34,7 +34,24 @@ describe("CLI generate integration flags", () => {
     const jobsPath = path.join(tempRoot, "job_postings.json");
     const outDir = path.join(tempRoot, "output");
 
-    writeJson(candidatePath, candidateFixture);
+    const testCandidatePayload = {
+      candidate: {
+        id: "candidate-1",
+        name: "Alex Candidate",
+        summary: "This is a summary to pass validation",
+        experiences: [
+          {
+            id: "exp-1",
+            title: "Software Engineer",
+            organization: "Acme",
+            start_date: "2022-01-01",
+            facts: [{ id: "f1", text: "Built APIs", skills: [] }]
+          }
+        ],
+        skills: [{ id: "skill-1", name: "TypeScript" }]
+      }
+    };
+    writeJson(candidatePath, testCandidatePayload);
     writeJson(jobsPath, [jobPostingFixture]);
 
     const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
@@ -66,9 +83,11 @@ describe("CLI generate integration flags", () => {
     const outDir = path.join(tempRoot, "output");
 
     const invalidCandidate = {
-      id: "candidate-missing-sections",
-      name: "No Experience Candidate",
-      skills: [{ id: "skill-1", name: "TypeScript" }]
+      candidate: {
+        id: "candidate-missing-sections",
+        name: "No Experience Candidate",
+        skills: [{ id: "skill-1", name: "TypeScript" }]
+      }
     };
 
     writeJson(candidatePath, invalidCandidate);

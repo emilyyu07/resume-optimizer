@@ -29,9 +29,13 @@ export class SectionOrganizer { // Exports the class so it can be in the main op
   // takes a flat array of Facts and returns a structured array of ResumeSections
   organize(facts: readonly Fact[]): readonly ResumeSection[] {
     // nested Map. Outer map groups by section type, inner map groups by specific entry 
-    // maps provide O(1) lookup time
     const sectionMap = new Map<string, Map<string, ResumeEntry>>();
-
+    
+    // WEC CONSTRAINT: Guarantee required sections exist even if candidate data is empty.
+    sectionMap.set("education", new Map());
+    sectionMap.set("experience", new Map());
+    sectionMap.set("skills", new Map());
+    sectionMap.set("personal_info", new Map());
     // goes through every individual fact provided by the scoring engine
     for (const fact of facts) {
       // finds the correct section category for the current fact based on its source type

@@ -7,19 +7,20 @@ describe("parsers", () => {
   it("parses candidate and flattens facts", () => {
     const parser = new CandidateParser();
     const result = parser.parse({
-      id: "candidate-1",
-      name: "Alex Candidate",
-      experiences: [
-        {
-          id: "exp-1",
-          title: "Software Engineer",
-          company: "Acme",
-          startDate: "2022-01-01",
-          bullets: ["Built APIs"],
-          skills: ["TypeScript"]
-        }
-      ],
-      skills: [{ id: "skill-1", name: "TypeScript" }]
+      candidate: {
+        id: "candidate-1",
+        name: "Alex Candidate",
+        experiences: [
+          {
+            id: "exp-1",
+            title: "Software Engineer",
+            organization: "Acme",
+            start_date: "2022-01-01",
+            facts: [{ id: "f1", text: "Built APIs", skills: [] }]
+          }
+        ],
+        skills: [{ id: "skill-1", name: "TypeScript" }]
+      }
     });
 
     expect(result.candidate.id).toBe("candidate-1");
@@ -52,12 +53,14 @@ describe("parsers", () => {
   it("throws on duplicate fact ids", () => {
     const parser = new CandidateParser();
     const input = {
-      id: "candidate-dup",
-      name: "Dup",
-      skills: [
-        { id: "skill-dup", name: "TypeScript" },
-        { id: "skill-dup", name: "TypeScript - duplicate" }
-      ]
+      candidate: {
+        id: "candidate-dup",
+        name: "Dup",
+        skills: [
+          { id: "skill-dup", name: "TypeScript" },
+          { id: "skill-dup", name: "TypeScript - duplicate" }
+        ]
+      }
     } as unknown;
     expect(() => parser.parse(input)).toThrowError(/duplicate candidate entity IDs/i);
   });
@@ -65,30 +68,30 @@ describe("parsers", () => {
   it("throws with aggregate duplicate ids across entity groups", () => {
     const parser = new CandidateParser();
     const input = {
-      id: "candidate-dup-2",
-      name: "Dup 2",
-      experiences: [
-        {
-          id: "exp-1",
-          title: "Software Engineer",
-          company: "Acme",
-          startDate: "2022-01-01",
-          bullets: ["Built APIs"],
-          skills: ["TypeScript"]
-        },
-        {
-          id: "exp-1",
-          title: "Software Engineer II",
-          company: "Acme",
-          startDate: "2023-01-01",
-          bullets: ["Built more APIs"],
-          skills: ["Node.js"]
-        }
-      ],
-      skills: [
-        { id: "skill-1", name: "TypeScript" },
-        { id: "skill-1", name: "Node.js" }
-      ]
+      candidate: {
+        id: "candidate-dup-2",
+        name: "Dup 2",
+        experiences: [
+          {
+            id: "exp-1",
+            title: "Software Engineer",
+            organization: "Acme",
+            start_date: "2022-01-01",
+            facts: [{ id: "f1", text: "Built APIs" }]
+          },
+          {
+            id: "exp-1",
+            title: "Software Engineer II",
+            organization: "Acme",
+            start_date: "2023-01-01",
+            facts: [{ id: "f2", text: "Built more APIs" }]
+          }
+        ],
+        skills: [
+          { id: "skill-1", name: "TypeScript" },
+          { id: "skill-1", name: "Node.js" }
+        ]
+      }
     } as unknown;
     expect(() => parser.parse(input)).toThrowError(/experiences: exp-1; skills: skill-1/i);
   });

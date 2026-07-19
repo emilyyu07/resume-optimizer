@@ -20,7 +20,51 @@ import type { Fact } from "../src/models/Fact";
 describe("ResumeOptimizer", () => {
   // PREVIOUS WORK: Your teammate's baseline integration test remains untouched.
   it("runs baseline optimization pipeline", () => {
-    const parsed = new CandidateParser().parse(candidateFixture);
+    const parsed = new CandidateParser().parse({
+      candidate: {
+        id: "candidate-1",
+        name: "Alex Candidate",
+        summary: "Backend engineer with API design and reliability experience.",
+        experiences: [
+          {
+            id: "exp-1",
+            title: "Software Engineer",
+            organization: "Acme",
+            start_date: "2022-01-01",
+            facts: [
+              { id: "f1", text: "Built TypeScript APIs handling 1M requests per day.", skills: [] },
+              { id: "f2", text: "Improved test coverage with Vitest.", skills: [] }
+            ]
+          }
+        ],
+        projects: [
+          {
+            id: "proj-1",
+            title: "Resume Optimizer",
+            facts: [{ id: "f3", text: "Implemented CLI workflows with evidence tracking.", skills: [] }]
+          }
+        ],
+        certifications: [
+          {
+            id: "cert-1",
+            name: "AWS Developer",
+            issuer: "Amazon"
+          }
+        ],
+        education: [
+          {
+            id: "edu-1",
+            institution: "State University",
+            degree: "BS",
+            program: "Computer Science"
+          }
+        ],
+        skills: [
+          { id: "skill-1", name: "TypeScript" },
+          { id: "skill-2", name: "Node.js" }
+        ]
+      }
+    });
     const scorer = new CompositeScorer({
       scorers: [new KeywordScorer(), new SkillScorer(), new ResponsibilityScorer(), new TitleScorer()],
       weights: buildCompositeWeights(DEFAULT_SCORER_WEIGHTS)

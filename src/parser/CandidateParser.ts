@@ -11,39 +11,58 @@ import type {
 import type { Fact, FactMetadataValue } from "../models/Fact";
 import { extractKeywords } from "../utils/keywords";
 
+// --- Zod schemas matching the WEC competition input format ---
+
+const FactItemSchema = z.object({
+  id: z.string().min(1),
+  text: z.string().min(1),
+  skills: z.array(z.string().min(1)).default([])
+});
+
+const ContactSchema = z.object({
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  linkedin: z.string().optional(),
+  location: z.string().optional()
+});
+
 const ExperienceSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
-  company: z.string().min(1),
-  startDate: z.string().min(1),
-  endDate: z.string().optional(),
-  summary: z.string().optional(),
-  bullets: z.array(z.string().min(1)).default([]),
-  skills: z.array(z.string().min(1)).default([])
+  organization: z.string().min(1),
+  location: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  facts: z.array(FactItemSchema).default([])
 });
 
 const ProjectSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1),
-  summary: z.string().optional(),
-  bullets: z.array(z.string().min(1)).default([]),
-  skills: z.array(z.string().min(1)).default([])
-});
-
-const CertificationSchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-  issuer: z.string().min(1),
-  date: z.string().optional()
+  title: z.string().min(1),
+  organization: z.string().optional(),
+  location: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  facts: z.array(FactItemSchema).default([])
 });
 
 const EducationSchema = z.object({
   id: z.string().min(1),
   institution: z.string().min(1),
   degree: z.string().min(1),
-  field: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional()
+  program: z.string().optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  location: z.string().optional(),
+  facts: z.array(FactItemSchema).default([])
+});
+
+const CertificationSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  issuer: z.string().min(1),
+  date: z.string().optional(),
+  facts: z.array(FactItemSchema).default([])
 });
 
 const SkillSchema = z.object({
@@ -53,18 +72,26 @@ const SkillSchema = z.object({
   proficiency: z.string().optional()
 });
 
-const CandidateSchema = z.object({
-  id: z.string().min(1),
+const CandidatePayloadSchema = z.object({
+  id: z.string().min(1).optional(),
   name: z.string().min(1),
-  email: z.string().email().optional(),
-  phone: z.string().optional(),
+  contact: ContactSchema.optional(),
   summary: z.string().optional(),
+  education: z.array(EducationSchema).default([]),
+  skills: z.array(SkillSchema).default([]),
   experiences: z.array(ExperienceSchema).default([]),
   projects: z.array(ProjectSchema).default([]),
   certifications: z.array(CertificationSchema).default([]),
-  education: z.array(EducationSchema).default([]),
-  skills: z.array(SkillSchema).default([])
+  applied_job_posting_ids: z.array(z.string()).default([])
 });
+
+type CandidatePayload = z.infer<typeof CandidatePayloadSchema>;
+
+// Accept both wrapped { candidate: {...} } and bare payload formats
+const CandidateSchema = z.union([
+  z.object({ candidate: CandidatePayloadSchema }),
+  CandidatePayloadSchema
+]);
 
 export interface EvidenceInfo {
   readonly sourcePath: string;
@@ -78,7 +105,8 @@ export interface ParsedCandidate {
 }
 
 /**
- * Parses candidate JSON and flattens evidence-backed facts for downstream scoring.
+ * Parses candidate JSON in WEC competition format and flattens evidence-backed facts
+ * for downstream scoring.
  */
 export class CandidateParser {
   // TODO: Extend schema/versioning support for multiple candidate input formats.
@@ -91,9 +119,12 @@ export class CandidateParser {
       throw new Error(`Invalid candidate.json payload: ${details}`);
     }
 
-    const candidate = this.toCandidate(parsed.data);
+    const payload: CandidatePayload =
+      "candidate" in parsed.data ? parsed.data.candidate : parsed.data;
+
+    const candidate = this.toCandidate(payload);
     this.assertUniqueEntityIds(candidate);
-    const facts = this.flattenFacts(candidate);
+    const facts = this.flattenFactsFromPayload(payload);
     const evidenceRegistry = this.buildEvidenceRegistry(facts);
     return {
       candidate,
@@ -161,20 +192,28 @@ export class CandidateParser {
     }
   }
 
-  private toCandidate(input: z.infer<typeof CandidateSchema>): Candidate {
+  private generateId(name: string): string {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  }
+
+  private toCandidate(payload: CandidatePayload): Candidate {
+    const id = payload.id ?? this.generateId(payload.name);
     return {
-      id: input.id,
-      name: input.name,
-      email: input.email,
-      phone: input.phone,
-      summary: input.summary,
-      experiences: input.experiences.map((experience) => this.toExperience(experience)),
-      projects: input.projects.map((project) => this.toProject(project)),
-      certifications: input.certifications.map((certification) =>
+      id,
+      name: payload.name,
+      email: payload.contact?.email,
+      phone: payload.contact?.phone,
+      summary: payload.summary,
+      experiences: payload.experiences.map((experience) => this.toExperience(experience)),
+      projects: payload.projects.map((project) => this.toProject(project)),
+      certifications: payload.certifications.map((certification) =>
         this.toCertification(certification)
       ),
-      education: input.education.map((education) => this.toEducation(education)),
-      skills: input.skills.map((skill) => this.toSkill(skill))
+      education: payload.education.map((education) => this.toEducation(education)),
+      skills: payload.skills.map((skill) => this.toSkill(skill))
     };
   }
 
@@ -182,22 +221,22 @@ export class CandidateParser {
     return {
       id: input.id,
       title: input.title,
-      company: input.company,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      summary: input.summary,
-      bullets: input.bullets,
-      skills: input.skills
+      company: input.organization,
+      startDate: input.start_date ?? "",
+      endDate: input.end_date,
+      summary: undefined,
+      bullets: input.facts.map((f) => f.text),
+      skills: [...new Set(input.facts.flatMap((f) => f.skills))]
     };
   }
 
   private toProject(input: z.infer<typeof ProjectSchema>): Project {
     return {
       id: input.id,
-      name: input.name,
-      summary: input.summary,
-      bullets: input.bullets,
-      skills: input.skills
+      name: input.title,
+      summary: undefined,
+      bullets: input.facts.map((f) => f.text),
+      skills: [...new Set(input.facts.flatMap((f) => f.skills))]
     };
   }
 
@@ -215,9 +254,9 @@ export class CandidateParser {
       id: input.id,
       institution: input.institution,
       degree: input.degree,
-      field: input.field,
-      startDate: input.startDate,
-      endDate: input.endDate
+      field: input.program,
+      startDate: input.start_date,
+      endDate: input.end_date
     };
   }
 
@@ -230,7 +269,11 @@ export class CandidateParser {
     };
   }
 
-  private flattenFacts(candidate: Candidate): readonly Fact[] {
+  /**
+   * Flattens the raw parsed payload into a uniform Fact[] array.
+   * Uses fact IDs provided in the competition format directly, preserving provenance.
+   */
+  private flattenFactsFromPayload(payload: CandidatePayload): readonly Fact[] {
     const facts: Fact[] = [];
     const seen = new Map<string, string>(); // fact id -> sourcePath
     const duplicates: Array<{ id: string; firstPath: string; duplicatePath: string }> = [];
@@ -250,75 +293,57 @@ export class CandidateParser {
       facts.push(fact);
     };
 
-    if (candidate.summary) {
+    const candidateId = payload.id ?? this.generateId(payload.name);
+
+    // Summary fact (optional — competition format may not include a summary)
+    if (payload.summary) {
       const fact = this.createFact(
-        `summary:${candidate.id}`,
-        candidate.summary,
+        `summary:${candidateId}`,
+        payload.summary,
         "summary",
-        candidate.id,
+        candidateId,
         "summary",
         "summary",
-        { candidateName: candidate.name }
+        { candidateName: payload.name }
       );
       pushFact(fact);
     }
 
-    for (const experience of candidate.experiences) {
-      if (experience.summary) {
+    // Experience facts — use provided fact IDs from the competition format
+    for (const experience of payload.experiences) {
+      for (const factItem of experience.facts) {
         const fact = this.createFact(
-          `experience:${experience.id}:summary`,
-          experience.summary,
+          factItem.id,
+          factItem.text,
           "experience",
           experience.id,
-          `experiences.${experience.id}.summary`,
-          "summary",
-          { title: experience.title, company: experience.company }
+          `experiences.${experience.id}.facts.${factItem.id}`,
+          "fact",
+          { title: experience.title, company: experience.organization }
         );
         pushFact(fact);
       }
-      experience.bullets.forEach((bullet, index) => {
-        const fact = this.createFact(
-          `experience:${experience.id}:bullet:${index}`,
-          bullet,
-          "experience",
-          experience.id,
-          `experiences.${experience.id}.bullets.${index}`,
-          "bullet",
-          { title: experience.title, company: experience.company }
-        );
-        pushFact(fact);
-      });
     }
 
-    for (const project of candidate.projects) {
-      if (project.summary) {
+    // Project facts
+    for (const project of payload.projects) {
+      for (const factItem of project.facts) {
         const fact = this.createFact(
-          `project:${project.id}:summary`,
-          project.summary,
+          factItem.id,
+          factItem.text,
           "project",
           project.id,
-          `projects.${project.id}.summary`,
-          "summary",
-          { name: project.name }
+          `projects.${project.id}.facts.${factItem.id}`,
+          "fact",
+          { name: project.title }
         );
         pushFact(fact);
       }
-      project.bullets.forEach((bullet, index) => {
-        const fact = this.createFact(
-          `project:${project.id}:bullet:${index}`,
-          bullet,
-          "project",
-          project.id,
-          `projects.${project.id}.bullets.${index}`,
-          "bullet",
-          { name: project.name }
-        );
-        pushFact(fact);
-      });
     }
 
-    for (const certification of candidate.certifications) {
-      const fact = this.createFact(
+    // Certification facts — auto-generated name/issuer summary + explicit facts
+    for (const certification of payload.certifications) {
+      const summaryFact = this.createFact(
         `certification:${certification.id}`,
         `${certification.name} (${certification.issuer})`,
         "certification",
@@ -327,26 +352,54 @@ export class CandidateParser {
         "name",
         { issuer: certification.issuer, date: certification.date ?? null }
       );
-      pushFact(fact);
+      pushFact(summaryFact);
+
+      for (const factItem of certification.facts) {
+        const fact = this.createFact(
+          factItem.id,
+          factItem.text,
+          "certification",
+          certification.id,
+          `certifications.${certification.id}.facts.${factItem.id}`,
+          "fact",
+          { issuer: certification.issuer, date: certification.date ?? null }
+        );
+        pushFact(fact);
+      }
     }
 
-    for (const education of candidate.education) {
-      const educationFact = [education.degree, education.field, education.institution]
+    // Education facts — auto-generated degree summary + explicit facts (e.g. scholarships)
+    for (const education of payload.education) {
+      const educationText = [education.degree, education.program, education.institution]
         .filter(Boolean)
         .join(" - ");
-      const fact = this.createFact(
+      const summaryFact = this.createFact(
         `education:${education.id}`,
-        educationFact,
+        educationText,
         "education",
         education.id,
         `education.${education.id}`,
         "degree",
         { institution: education.institution }
       );
-      pushFact(fact);
+      pushFact(summaryFact);
+
+      for (const factItem of education.facts) {
+        const fact = this.createFact(
+          factItem.id,
+          factItem.text,
+          "education",
+          education.id,
+          `education.${education.id}.facts.${factItem.id}`,
+          "fact",
+          { institution: education.institution }
+        );
+        pushFact(fact);
+      }
     }
 
-    for (const skill of candidate.skills) {
+    // Skill facts
+    for (const skill of payload.skills) {
       const fact = this.createFact(
         `skill:${skill.id}`,
         skill.name,

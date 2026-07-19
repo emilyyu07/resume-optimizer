@@ -32,7 +32,7 @@ const ResumeSchema = z.object({
   sections: z.array(
     z.object({
       id: z.string().min(1),
-      type: z.enum(["summary", "experience", "projects", "skills", "education", "certifications"]),
+      type: z.enum(["summary", "experience", "projects", "skills", "education", "certifications", "personal_info"]),
       title: z.string().min(1),
       entries: z.array(
         z.object({

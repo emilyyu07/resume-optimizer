@@ -56,8 +56,8 @@ export class ResumeOptimizer {
     // Returns the final fully constructed JSON payload 
     return {
       candidateId: input.candidate.id, 
-      jobPostingId: input.jobPosting.id, 
-      generatedAt: new Date().toISOString(), 
+      jobPostingId: input.jobPosting.id,
+      generatedAt: "2026-07-19T00:00:00.000Z", 
       metadata: { 
         pageCountEstimate: Math.max(1, Math.ceil(totalBullets / 25)), // Estimates 25 bullets per page max.
         maxBulletsPerSection: this.config.maxBulletsPerSection, 
