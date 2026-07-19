@@ -91,7 +91,7 @@ export function runGenerateCommand(argv: readonly string[]): number {
 
   const selectedJobs = args.jobId ? jobPostings.filter((j) => j.id === args.jobId) : jobPostings;
 
-  const results: Array<{ jobId: string; ok: boolean; error?: any }> = [];
+  const results: Array<{ jobId: string; ok: boolean; error?: unknown }> = [];
 
   for (const jobPosting of selectedJobs) {
     try {
@@ -141,10 +141,10 @@ export function runGenerateCommand(argv: readonly string[]): number {
   return results.some((r) => !r.ok) ? 1 : 0;
 }
 
-function formatErrorForJson(err: any): unknown {
+function formatErrorForJson(err: unknown): unknown {
   if (!err) return null;
   if (err && typeof err === "object") {
-    const e = err as any;
+    const e = err as Record<string, unknown>;
     if (e.details && Array.isArray(e.details)) {
       return { message: e.message, details: e.details };
     }
