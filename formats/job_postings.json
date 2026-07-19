@@ -1,19 +1,19 @@
 {
-  "job_postings": [
+  "jobs": [
     {
       "id": "posting_1",
       "company": "Company XYZ",
       "title": "Programming Intern",
-      "description": "Full job posting text",
+      "summary": "Full job posting text",
       "responsibilities": [
         "Develop and maintain backend services",
         "Collaborate with engineers and product managers"
       ],
-      "required_qualifications": [
+      "requiredQualifications": [
         "Experience with Python",
         "Knowledge of data structures and algorithms"
       ],
-      "preferred_qualifications": ["Experience with SQL", "Experience with cloud platforms"]
+      "preferredQualifications": ["Experience with SQL", "Experience with cloud platforms"]
     }
   ]
 }

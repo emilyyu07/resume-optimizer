@@ -1,6 +1,8 @@
 {
   "candidate": {
+    "id": "candidate_1",
     "name": "Jane Doe",
+    "summary": "This is a summary for Jane Doe.",
     "contact": {
       "email": "jane.doe@email.com",
       "phone": "123-456-7890",
