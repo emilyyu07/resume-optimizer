@@ -13,6 +13,8 @@ export * from "./parser/CandidateParser";
 export * from "./parser/JobParser";
 export * from "./ranking/CompositeScorer";
 export * from "./ranking/KeywordScorer";
+export * from "./ranking/PreferredQualificationScorer";
+export * from "./ranking/RequiredQualificationScorer";
 export * from "./ranking/ResponsibilityScorer";
 export * from "./ranking/SkillScorer";
 export * from "./ranking/TitleScorer";

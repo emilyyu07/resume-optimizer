@@ -20,6 +20,7 @@ export class EvidenceValidator {
   validate(resume: Resume, evidenceRegistry: ReadonlyMap<string, EvidenceInfo>): void {
     const missingIds = new Map<string, Array<{ sectionId: string; entryId: string; factId: string }>>();
     const emptyEvidenceLocations: Array<{ sectionId: string; entryId: string; factId: string; factText: string }> = [];
+    const factIdsMissingFromRegistry: Array<{ sectionId: string; entryId: string; factId: string }> = [];
     const mismatchedSnapshots: Array<{
       evidenceId: string;
       expected: string;
@@ -30,6 +31,14 @@ export class EvidenceValidator {
     for (const section of resume.sections) {
       for (const entry of section.entries) {
         for (const fact of entry.facts) {
+          if (!evidenceRegistry.has(fact.id)) {
+            factIdsMissingFromRegistry.push({
+              sectionId: section.id,
+              entryId: entry.id,
+              factId: fact.id
+            });
+          }
+
           if (!Array.isArray(fact.evidenceIds) || fact.evidenceIds.length === 0) {
             emptyEvidenceLocations.push({
               sectionId: section.id,
@@ -78,6 +87,16 @@ export class EvidenceValidator {
         sectionId: l.sectionId,
         entryId: l.entryId,
         factId: l.factId
+      });
+    }
+
+    for (const missing of factIdsMissingFromRegistry) {
+      details.push({
+        code: "fact_id_not_registered",
+        message: "Fact ID is missing from evidence registry",
+        factId: missing.factId,
+        sectionId: missing.sectionId,
+        entryId: missing.entryId
       });
     }
 

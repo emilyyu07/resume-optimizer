@@ -92,6 +92,7 @@ export class CandidateParser {
     }
 
     const candidate = this.toCandidate(parsed.data);
+    this.assertUniqueEntityIds(candidate);
     const facts = this.flattenFacts(candidate);
     const evidenceRegistry = this.buildEvidenceRegistry(facts);
     return {
@@ -106,7 +107,58 @@ export class CandidateParser {
     for (const fact of facts) {
       m.set(fact.id, { sourcePath: fact.metadata.sourcePath, sourceSnapshot: fact.metadata.sourceSnapshot });
     }
+    if (m.size !== facts.length) {
+      throw new Error(
+        `Evidence registry construction failed: expected ${facts.length} entries but found ${m.size}.`
+      );
+    }
     return m;
+  }
+
+  private assertUniqueEntityIds(candidate: Candidate): void {
+    const duplicates: string[] = [];
+
+    const check = (label: string, ids: readonly string[]) => {
+      const seen = new Set<string>();
+      const dupes = new Set<string>();
+      for (const id of ids) {
+        if (seen.has(id)) {
+          dupes.add(id);
+        } else {
+          seen.add(id);
+        }
+      }
+      if (dupes.size > 0) {
+        duplicates.push(`${label}: ${[...dupes].join(", ")}`);
+      }
+    };
+
+    check(
+      "experiences",
+      candidate.experiences.map((experience) => experience.id)
+    );
+    check(
+      "projects",
+      candidate.projects.map((project) => project.id)
+    );
+    check(
+      "certifications",
+      candidate.certifications.map((certification) => certification.id)
+    );
+    check(
+      "education",
+      candidate.education.map((education) => education.id)
+    );
+    check(
+      "skills",
+      candidate.skills.map((skill) => skill.id)
+    );
+
+    if (duplicates.length > 0) {
+      throw new Error(
+        `Invalid candidate.json payload: duplicate candidate entity IDs detected (${duplicates.join("; ")}).`
+      );
+    }
   }
 
   private toCandidate(input: z.infer<typeof CandidateSchema>): Candidate {
@@ -181,12 +233,18 @@ export class CandidateParser {
   private flattenFacts(candidate: Candidate): readonly Fact[] {
     const facts: Fact[] = [];
     const seen = new Map<string, string>(); // fact id -> sourcePath
+    const duplicates: Array<{ id: string; firstPath: string; duplicatePath: string }> = [];
 
     const pushFact = (fact: Fact) => {
       const firstPath = seen.get(fact.id);
-      const currentPath = (fact as any).metadata?.sourcePath ?? "unknown";
+      const currentPath = fact.metadata.sourcePath;
       if (firstPath) {
-        throw new Error(`Duplicate fact id detected: ${fact.id}. First occurrence at ${firstPath}, duplicate at ${currentPath}`);
+        duplicates.push({
+          id: fact.id,
+          firstPath,
+          duplicatePath: currentPath
+        });
+        return;
       }
       seen.set(fact.id, currentPath);
       facts.push(fact);
@@ -299,6 +357,16 @@ export class CandidateParser {
         { category: skill.category ?? null, proficiency: skill.proficiency ?? null }
       );
       pushFact(fact);
+    }
+
+    if (duplicates.length > 0) {
+      const details = duplicates
+        .map(
+          (duplicate) =>
+            `${duplicate.id} (first=${duplicate.firstPath}, duplicate=${duplicate.duplicatePath})`
+        )
+        .join("; ");
+      throw new Error(`Duplicate fact id(s) detected: ${details}`);
     }
 
     return facts;

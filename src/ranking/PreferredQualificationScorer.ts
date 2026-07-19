@@ -4,16 +4,16 @@ import { tokenize } from "../utils/tokenizer";
 import { TokenOverlapScorer } from "./TokenOverlapScorer";
 
 /**
- * Scores skill alignment between fact keywords and job keywords.
+ * Scores overlap with preferred qualification statements.
  */
-export class SkillScorer extends TokenOverlapScorer {
-  readonly id = "skill";
+export class PreferredQualificationScorer extends TokenOverlapScorer {
+  readonly id = "preferredQualification";
 
   protected sourceTerms(fact: Fact): readonly string[] {
     return fact.keywords.length > 0 ? fact.keywords : tokenize(fact.text);
   }
 
   protected targetTerms(_fact: Fact, jobPosting: JobPosting): readonly string[] {
-    return jobPosting.keywords;
+    return jobPosting.preferredQualifications;
   }
 }

@@ -7,6 +7,8 @@ import { CandidateParser } from "../parser/CandidateParser";
 import { JobParser } from "../parser/JobParser";
 import { CompositeScorer, buildCompositeWeights } from "../ranking/CompositeScorer";
 import { KeywordScorer } from "../ranking/KeywordScorer";
+import { PreferredQualificationScorer } from "../ranking/PreferredQualificationScorer";
+import { RequiredQualificationScorer } from "../ranking/RequiredQualificationScorer";
 import { ResponsibilityScorer } from "../ranking/ResponsibilityScorer";
 import { SkillScorer } from "../ranking/SkillScorer";
 import { TitleScorer } from "../ranking/TitleScorer";
@@ -70,7 +72,14 @@ export function runGenerateCommand(argv: readonly string[]): number {
   const candidateParser = new CandidateParser();
   const jobParser = new JobParser();
   const scorer = new CompositeScorer({
-    scorers: [new KeywordScorer(), new SkillScorer(), new ResponsibilityScorer(), new TitleScorer()],
+    scorers: [
+      new KeywordScorer(),
+      new SkillScorer(),
+      new ResponsibilityScorer(),
+      new TitleScorer(),
+      new RequiredQualificationScorer(),
+      new PreferredQualificationScorer()
+    ],
     weights: buildCompositeWeights(DEFAULT_SCORER_WEIGHTS)
   });
   const optimizer = new ResumeOptimizer({

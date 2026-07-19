@@ -1,18 +1,19 @@
 import type { Fact } from "../models/Fact";
 import type { JobPosting } from "../models/JobPosting";
-import { jaccardSimilarity } from "../utils/similarity";
 import { tokenize } from "../utils/tokenizer";
-import type { IScorer } from "./interfaces/IScorer";
+import { TokenOverlapScorer } from "./TokenOverlapScorer";
 
 /**
  * Scores facts by lexical overlap with global job keywords.
  */
-export class KeywordScorer implements IScorer {
-  // TODO: Replace lexical overlap with semantic embedding search.
+export class KeywordScorer extends TokenOverlapScorer {
   readonly id = "keyword";
 
-  score(fact: Fact, jobPosting: JobPosting): number {
-    const factTokens = fact.keywords.length > 0 ? fact.keywords : tokenize(fact.text);
-    return jaccardSimilarity(factTokens, jobPosting.keywords);
+  protected sourceTerms(fact: Fact): readonly string[] {
+    return tokenize(fact.text);
+  }
+
+  protected targetTerms(_fact: Fact, jobPosting: JobPosting): readonly string[] {
+    return jobPosting.keywords;
   }
 }
