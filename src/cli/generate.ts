@@ -73,7 +73,7 @@ export function runGenerateCommand(argv: readonly string[]): void {
 
   const parsedCandidate = candidateParser.parse(readJson(args.candidatePath));
   const jobPostings = jobParser.parse(readJson(args.jobsPath));
-  const availableEvidenceIds = new Set(parsedCandidate.facts.map((fact) => fact.id));
+  const evidenceRegistry = parsedCandidate.evidenceRegistry;
 
   fs.mkdirSync(args.outDir, { recursive: true });
 
@@ -84,7 +84,7 @@ export function runGenerateCommand(argv: readonly string[]): void {
       jobPosting
     });
 
-    evidenceValidator.validate(resume, availableEvidenceIds);
+    evidenceValidator.validate(resume, evidenceRegistry);
     resumeValidator.validate(resume);
     schemaValidator.validate(resume);
 

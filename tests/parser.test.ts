@@ -48,4 +48,17 @@ describe("parsers", () => {
     expect(jobs).toHaveLength(1);
     expect(jobs[0]?.keywords.includes("typescript")).toBe(true);
   });
+
+  it("throws on duplicate fact ids", () => {
+    const parser = new CandidateParser();
+    const input = {
+      id: "candidate-dup",
+      name: "Dup",
+      skills: [
+        { id: "skill-dup", name: "TypeScript" },
+        { id: "skill-dup", name: "TypeScript - duplicate" }
+      ]
+    } as unknown;
+    expect(() => parser.parse(input)).toThrowError(/Duplicate fact id detected/);
+  });
 });

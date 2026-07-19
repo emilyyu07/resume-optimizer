@@ -66,9 +66,15 @@ const CandidateSchema = z.object({
   skills: z.array(SkillSchema).default([])
 });
 
+export interface EvidenceInfo {
+  readonly sourcePath: string;
+  readonly sourceSnapshot: string;
+}
+
 export interface ParsedCandidate {
   readonly candidate: Candidate;
   readonly facts: readonly Fact[];
+  readonly evidenceRegistry: ReadonlyMap<string, EvidenceInfo>;
 }
 
 /**
@@ -86,10 +92,21 @@ export class CandidateParser {
     }
 
     const candidate = this.toCandidate(parsed.data);
+    const facts = this.flattenFacts(candidate);
+    const evidenceRegistry = this.buildEvidenceRegistry(facts);
     return {
       candidate,
-      facts: this.flattenFacts(candidate)
+      facts,
+      evidenceRegistry
     };
+  }
+
+  private buildEvidenceRegistry(facts: readonly Fact[]) {
+    const m = new Map<string, { sourcePath: string; sourceSnapshot: string }>();
+    for (const fact of facts) {
+      m.set(fact.id, { sourcePath: fact.metadata.sourcePath, sourceSnapshot: fact.metadata.sourceSnapshot });
+    }
+    return m;
   }
 
   private toCandidate(input: z.infer<typeof CandidateSchema>): Candidate {
