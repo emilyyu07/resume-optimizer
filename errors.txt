@@ -1,0 +1,24 @@
+
+> resume-optimizer@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /Users/elikafarokhi/SideProjects/resume-optimizer
+
+ ✓ tests/composite-scorer.test.ts (1 test) 1ms
+ ✓ tests/qualification-scorers.test.ts (2 tests) 2ms
+ ✓ tests/parser.test.ts (5 tests) 5ms
+ ❯ tests/validator.test.ts (8 tests | 1 failed) 8ms
+   × validators > validates resume shape and limits 5ms
+     → expected [Function] to not throw an error but 'ValidationError: Resume validation fa…' was thrown
+ ✓ tests/renderer.test.ts (2 tests) 7ms
+ ✓ tests/optimizer.test.ts (4 tests) 5ms
+ ❯ tests/cli-generate.integration.test.ts (2 tests | 1 failed) 12ms
+   × CLI generate integration flags > --validate-only validates but does not write resume files 8ms
+     → expected 1 to be +0 // Object.is equality
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 22 passed (24)
+   Start at  13:43:45
+   Duration  331ms (transform 206ms, setup 0ms, collect 436ms, tests 41ms, environment 1ms, prepare 369ms)
+

@@ -110,7 +110,7 @@ export const resumeFixture: Resume = {
   sections: [
     {
       id: "experience",
-      type: "experience",
+      type: "experience" as any,
       title: "Experience",
       entries: [
         {
@@ -125,7 +125,7 @@ export const resumeFixture: Resume = {
     },
     {
       id: "projects",
-      type: "projects",
+      type: "projects" as any,
       title: "Projects",
       entries: [
         {
@@ -139,7 +139,7 @@ export const resumeFixture: Resume = {
     },
     {
       id: "summary",
-      type: "summary",
+      type: "summary" as any,
       title: "Professional Summary",
       entries: [
         {
@@ -169,7 +169,7 @@ export const resumeFixture: Resume = {
     },
     {
       id: "skills",
-      type: "skills",
+      type: "skills" as any,
       title: "Skills",
       entries: [
         {
@@ -197,6 +197,18 @@ export const resumeFixture: Resume = {
           evidenceIds: ["skill:skill-1"]
         }
       ]
+    },
+    {
+      id: "education",
+      type: "education" as any,
+      title: "Education",
+      entries: []
+    },
+    {
+      id: "personal_info",
+      type: "personal_info" as any,
+      title: "Personal information",
+      entries: []
     }
   ]
 };
