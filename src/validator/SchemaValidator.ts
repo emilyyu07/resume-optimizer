@@ -8,7 +8,13 @@ const FactSchema = z.object({
   sourceType: z.enum(["experience", "project", "certification", "education", "skill", "summary"]),
   parentId: z.string(),
   keywords: z.array(z.string()),
-  metadata: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+  metadata: z
+    .object({
+      sourcePath: z.string().min(1),
+      sourceField: z.string().min(1),
+      sourceSnapshot: z.string()
+    })
+    .catchall(z.union([z.string(), z.number(), z.boolean(), z.null()])),
   score: z.number(),
   evidenceIds: z.array(z.string())
 });

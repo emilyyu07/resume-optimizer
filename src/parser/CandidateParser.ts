@@ -8,7 +8,7 @@ import type {
   Project,
   Skill
 } from "../models/Candidate";
-import type { Fact } from "../models/Fact";
+import type { Fact, FactMetadataValue } from "../models/Fact";
 import { extractKeywords } from "../utils/keywords";
 
 const ExperienceSchema = z.object({
@@ -163,87 +163,125 @@ export class CandidateParser {
 
   private flattenFacts(candidate: Candidate): readonly Fact[] {
     const facts: Fact[] = [];
+    const seen = new Map<string, string>(); // fact id -> sourcePath
+
+    const pushFact = (fact: Fact) => {
+      const firstPath = seen.get(fact.id);
+      const currentPath = (fact as any).metadata?.sourcePath ?? "unknown";
+      if (firstPath) {
+        throw new Error(`Duplicate fact id detected: ${fact.id}. First occurrence at ${firstPath}, duplicate at ${currentPath}`);
+      }
+      seen.set(fact.id, currentPath);
+      facts.push(fact);
+    };
 
     if (candidate.summary) {
-      facts.push(
-        this.createFact(`summary:${candidate.id}`, candidate.summary, "summary", candidate.id, {
-          candidateName: candidate.name
-        })
+      const fact = this.createFact(
+        `summary:${candidate.id}`,
+        candidate.summary,
+        "summary",
+        candidate.id,
+        "summary",
+        "summary",
+        { candidateName: candidate.name }
       );
+      pushFact(fact);
     }
 
     for (const experience of candidate.experiences) {
       if (experience.summary) {
-        facts.push(
-          this.createFact(
-            `experience:${experience.id}:summary`,
-            experience.summary,
-            "experience",
-            experience.id,
-            { title: experience.title, company: experience.company }
-          )
+        const fact = this.createFact(
+          `experience:${experience.id}:summary`,
+          experience.summary,
+          "experience",
+          experience.id,
+          `experiences.${experience.id}.summary`,
+          "summary",
+          { title: experience.title, company: experience.company }
         );
+        pushFact(fact);
       }
       experience.bullets.forEach((bullet, index) => {
-        facts.push(
-          this.createFact(
-            `experience:${experience.id}:bullet:${index}`,
-            bullet,
-            "experience",
-            experience.id,
-            { title: experience.title, company: experience.company }
-          )
+        const fact = this.createFact(
+          `experience:${experience.id}:bullet:${index}`,
+          bullet,
+          "experience",
+          experience.id,
+          `experiences.${experience.id}.bullets.${index}`,
+          "bullet",
+          { title: experience.title, company: experience.company }
         );
+        pushFact(fact);
       });
     }
 
     for (const project of candidate.projects) {
       if (project.summary) {
-        facts.push(
-          this.createFact(`project:${project.id}:summary`, project.summary, "project", project.id, {
-            name: project.name
-          })
+        const fact = this.createFact(
+          `project:${project.id}:summary`,
+          project.summary,
+          "project",
+          project.id,
+          `projects.${project.id}.summary`,
+          "summary",
+          { name: project.name }
         );
+        pushFact(fact);
       }
       project.bullets.forEach((bullet, index) => {
-        facts.push(
-          this.createFact(`project:${project.id}:bullet:${index}`, bullet, "project", project.id, {
-            name: project.name
-          })
+        const fact = this.createFact(
+          `project:${project.id}:bullet:${index}`,
+          bullet,
+          "project",
+          project.id,
+          `projects.${project.id}.bullets.${index}`,
+          "bullet",
+          { name: project.name }
         );
+        pushFact(fact);
       });
     }
 
     for (const certification of candidate.certifications) {
-      facts.push(
-        this.createFact(
-          `certification:${certification.id}`,
-          `${certification.name} (${certification.issuer})`,
-          "certification",
-          certification.id,
-          { issuer: certification.issuer, date: certification.date ?? null }
-        )
+      const fact = this.createFact(
+        `certification:${certification.id}`,
+        `${certification.name} (${certification.issuer})`,
+        "certification",
+        certification.id,
+        `certifications.${certification.id}`,
+        "name",
+        { issuer: certification.issuer, date: certification.date ?? null }
       );
+      pushFact(fact);
     }
 
     for (const education of candidate.education) {
       const educationFact = [education.degree, education.field, education.institution]
         .filter(Boolean)
         .join(" - ");
-      facts.push(
-        this.createFact(`education:${education.id}`, educationFact, "education", education.id, {
-          institution: education.institution
-        })
+      const fact = this.createFact(
+        `education:${education.id}`,
+        educationFact,
+        "education",
+        education.id,
+        `education.${education.id}`,
+        "degree",
+        { institution: education.institution }
       );
+      pushFact(fact);
     }
 
     for (const skill of candidate.skills) {
-      facts.push(
-        this.createFact(`skill:${skill.id}`, skill.name, "skill", skill.id, {
-          category: skill.category ?? null,
-          proficiency: skill.proficiency ?? null
-        })
+      const fact = this.createFact(
+        `skill:${skill.id}`,
+        skill.name,
+        "skill",
+        skill.id,
+        `skills.${skill.id}.name`,
+        "name",
+        { category: skill.category ?? null, proficiency: skill.proficiency ?? null }
       );
+      pushFact(fact);
     }
 
     return facts;
@@ -254,7 +292,9 @@ export class CandidateParser {
     text: string,
     sourceType: Fact["sourceType"],
     parentId: string,
-    metadata: Readonly<Record<string, string | number | boolean | null>>
+    sourcePath: string,
+    sourceField: string,
+    metadata: Readonly<Record<string, FactMetadataValue>>
   ): Fact {
     return {
       id,
@@ -262,7 +302,12 @@ export class CandidateParser {
       sourceType,
       parentId,
       keywords: extractKeywords(text),
-      metadata,
+      metadata: {
+        sourcePath,
+        sourceField,
+        sourceSnapshot: text,
+        ...metadata
+      },
       score: 0,
       evidenceIds: [id]
     };
