@@ -51,7 +51,7 @@ export class SectionOrganizer { // Exports the class so it can be in the main op
       
       if (existingEntry) { 
         sectionEntries.set(entryId, { 
-          ...existingEntry, // Spreads the existing properties to retain them.
+          ...existingEntry, // Spreads the properties to retain them.
           facts: [...existingEntry.facts, fact], 
           score: Math.max(existingEntry.score, fact.score), 
           evidenceIds: [...new Set([...existingEntry.evidenceIds, ...fact.evidenceIds])] 
@@ -67,16 +67,7 @@ export class SectionOrganizer { // Exports the class so it can be in the main op
         });
       }
     }
-
-    const requiredSections = ["education", "experience", "skills", "personal_info"]; 
     
-    // Loops through our array of strictly required sections.
-    for (const req of requiredSections) {
-      if (!sectionMap.has(req)) { 
-        sectionMap.set(req, new Map<string, ResumeEntry>()); 
-      }
-    }
-
     // Transforms the Map back into an array structure for JSON
     return [...sectionMap.entries()] // Converts the outer map into an iterable array of key-value pairs.
       .map(([type, entries]) => ({ 

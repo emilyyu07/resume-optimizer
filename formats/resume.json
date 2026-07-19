@@ -1,0 +1,67 @@
+{
+  "candidate_name": "Jane Doe",
+  "target_job_id": "posting_1",
+  "target_job_title": "Programming Intern",
+  "page_count": 1,
+  "contact": {
+    "email": "jane.doe@email.com",
+    "phone": "123-456-7890",
+    "linkedin": "linkedin.com/in/jane-doe",
+    "location": "Waterloo, ON"
+  },
+  "sections": [
+    {
+      "name": "Education",
+      "entries": [
+        {
+          "id": "education_1",
+          "institution": "University of Waterloo",
+          "program": "Computer Engineering",
+          "degree": "Bachelor of Applied Science",
+          "start_date": "2024-09",
+          "end_date": "2029-04",
+          "facts": [
+            {
+              "text": "Recipient of the President's Scholarship",
+              "evidence_ids": ["education_fact_1"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Experience",
+      "entries": [
+        {
+          "id": "experience_1",
+          "title": "Programming Intern",
+          "organization": "Waterloo Engineering Competition",
+          "location": "Waterloo, ON",
+          "start_date": "2025-05",
+          "end_date": "2025-08",
+          "bullets": [
+            {
+              "text": "Built a Python data pipeline that processed 50000 records per day",
+              "evidence_ids": ["fact_1"]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Skills",
+      "entries": [
+        {
+          "id": "skill_1",
+          "name": "Python",
+          "category": "Programming Language",
+          "evidence_ids": ["skill_1"]
+        }
+      ]
+    },
+    {
+      "name": "Personal information",
+      "entries": []
+    }
+  ]
+}
