@@ -64,6 +64,8 @@ node dist/cli/generate.js --candidate candidate.json --jobs formats/job_postings
 
 In strict compliance with the Waterloo Engineering Competition AI policy, we utilized free AI models **exclusively for research purposes**. No generative AI was used to write code, generate text, design slides, or create any project deliverables.
 
+**Disclaimer regarding GitHub Copilot:** GitHub Copilot's code auto-complete features were strictly disabled; Copilot Chat was used exclusively as a search engine for documentation.
+
 ### Disclosed AI Usage (Research Purposes Only)
 
 **1. Algorithmic Research (Jaccard vs. Cosine Similarity)**
@@ -84,6 +86,20 @@ In strict compliance with the Waterloo Engineering Competition AI policy, we uti
 - **Purpose:** Investigating CSS print specifications to ensure our Handlebars template (`resume.hbs`) scales correctly when printed by the judges.
 - **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
 
+**4. System Architecture Brainstorming & Preliminary Scaffolding**
+
+- **Specific Prompt Used:** _"What are the best-practice architectural patterns (e.g., ETL pipelines) for designing a highly decoupled Node.js application that extracts JSON data, runs algorithmic scoring independently, and renders static HTML?"_
+- **Purpose:** To brainstorm the initial system architecture, define module boundaries, and outline project functionality and preliminary scaffolding before any code was written.
+- **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
+
+**5. Error Resolution & Build Debugging**
+
+- **Specific Prompt Used:** _"Why is Vitest throwing a 'CJS build of Vite's Node API is deprecated' warning when running my test suite, and what does it mean?"_
+- **Purpose:** To research and understand a build-tool warning in our terminal output without having AI write a fix for us.
+- **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
+
+_Note: The prompts listed above represent our core research inquiries. Minor follow-up questions for clarification (e.g., "Can you explain the margin property in that CSS rule?") were also asked within these same context windows._
+
 ### Environmental Impact Estimation
 
 Based on recent studies, a single AI query consumes approximately 0.33 watt-hours of electricity, emits 0.15 grams of $CO_2$, and evaporates roughly 10 milliliters of fresh water for data center cooling.
@@ -93,5 +109,3 @@ Over the course of this weekend, our team executed an estimated **300 research q
 - **Carbon Emissions:** ~45 grams of $CO_2$ (Comparable to driving a standard gasoline car for ~0.1 miles).
 - **Energy Cost:** 99 watt-hours (0.099 kWh). At an average Ontario grid rate of 14¢/kWh, the total monetary energy cost is **~$0.014 (1.4 cents)**.
 - **Water Usage:** ~3,000 milliliters (3 liters) of evaporated fresh water cooling cost.
-
-By strictly prohibiting generative AI for code and deliverables, we kept our query footprint and environmental impact exceptionally low.

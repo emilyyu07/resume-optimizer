@@ -17,7 +17,6 @@ function resolveDefaultTemplatePath(): string {
  * Renders resume models into HTML via Handlebars templates.
  */
 export class HtmlRenderer {
-  // TODO: Add support for swappable template themes and print profile options.
   private readonly template: HandlebarsTemplateDelegate;
 
   constructor(templatePath = resolveDefaultTemplatePath()) {
