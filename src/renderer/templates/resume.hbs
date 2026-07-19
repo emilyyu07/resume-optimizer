@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Optimized Resume</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 24px;
+        color: #222;
+      }
+      .meta {
+        margin-bottom: 16px;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      .section {
+        margin-top: 18px;
+      }
+      .section h2 {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 4px;
+        margin-bottom: 8px;
+      }
+      .entry {
+        margin-bottom: 10px;
+      }
+      .entry-title {
+        font-weight: 700;
+      }
+      .entry-subtitle {
+        color: #666;
+        margin-left: 8px;
+      }
+      ul {
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="meta">
+      <div>Candidate: {{candidateId}}</div>
+      <div>Job: {{jobPostingId}}</div>
+      <div>Generated At: {{generatedAt}}</div>
+      <div>Estimated Pages: {{metadata.pageCountEstimate}}</div>
+    </div>
+
+    {{#each sections}}
+      <section class="section">
+        <h2>{{title}}</h2>
+        {{#each entries}}
+          <article class="entry">
+            <span class="entry-title">{{title}}</span>
+            {{#if subtitle}}<span class="entry-subtitle">{{subtitle}}</span>{{/if}}
+            <ul>
+              {{#each facts}}
+                <li>{{text}}</li>
+              {{/each}}
+            </ul>
+          </article>
+        {{/each}}
+      </section>
+    {{/each}}
+  </body>
+</html>

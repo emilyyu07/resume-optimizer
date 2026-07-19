@@ -1,0 +1,21 @@
+export const STOPWORDS = new Set<string>([
+  "a",
+  "an",
+  "and",
+  "are",
+  "as",
+  "at",
+  "be",
+  "by",
+  "for",
+  "from",
+  "in",
+  "is",
+  "of",
+  "on",
+  "or",
+  "that",
+  "the",
+  "to",
+  "with"
+]);
