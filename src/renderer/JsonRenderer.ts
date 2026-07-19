@@ -6,6 +6,7 @@ import type { Resume } from "../models/Resume";
 export class JsonRenderer {
   // TODO: Add JSON schema version metadata once output contracts are versioned.
   render(resume: Resume): string {
-    return JSON.stringify(resume, null, 2);
+    const { jobPostingId, ...submissionResume } = resume;
+    return JSON.stringify(submissionResume, null, 2);
   }
 }
