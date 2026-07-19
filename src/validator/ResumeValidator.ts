@@ -30,10 +30,11 @@ export class ResumeValidator {
       });
     }
 
-    // WEC CONSTRAINT 
-    const requiredByWEC = ["education", "experience", "skills", "personal_info"];
+    // WEC CONSTRAINT FIX: Check TITLES instead of TYPES so we don't break Person 4's Schema Validator
+    const sectionTitles = new Set(resume.sections.map((section) => section.title));
+    const requiredByWEC = ["Education", "Experience", "Skills", "Personal information"];
     const missingWEC = requiredByWEC.filter(
-      (required) => !sectionTypes.has(required as any)
+      (required) => !sectionTitles.has(required)
     );
     if (missingWEC.length > 0) {
       details.push({
@@ -71,8 +72,8 @@ export class ResumeValidator {
       }
 
       // WEC CONSTRAINT - Factuality / Evidence ID tracking to ensure no data is made up 
-      // FIX: Added 'as string' to bypass the strict TypeScript type mismatch for the hackathon crunch
-      if ((section.type as string) !== "personal_info" && (section.type as string) !== "summary") {
+      // FIX: Check against title "Personal information" instead of type
+      if (section.title !== "Personal information" && (section.type as string) !== "summary") {
         for (const entry of section.entries) {
           for (const fact of entry.facts) {
             if (!fact.evidenceIds || fact.evidenceIds.length === 0) {
