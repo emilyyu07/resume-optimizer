@@ -1,19 +1,19 @@
 import type { Fact } from "../models/Fact";
 import type { JobPosting } from "../models/JobPosting";
-import { jaccardSimilarity } from "../utils/similarity";
 import { tokenize } from "../utils/tokenizer";
-import type { IScorer } from "./interfaces/IScorer";
+import { TokenOverlapScorer } from "./TokenOverlapScorer";
 
 /**
  * Scores overlap with responsibility statements from job postings.
  */
-export class ResponsibilityScorer implements IScorer {
-  // TODO: Incorporate action-verb and impact-aware scoring.
+export class ResponsibilityScorer extends TokenOverlapScorer {
   readonly id = "responsibility";
 
-  score(fact: Fact, jobPosting: JobPosting): number {
-    const responsibilities = tokenize(jobPosting.responsibilities.join(" "));
-    const factTokens = fact.keywords.length > 0 ? fact.keywords : tokenize(fact.text);
-    return jaccardSimilarity(factTokens, responsibilities);
+  protected sourceTerms(fact: Fact): readonly string[] {
+    return fact.keywords.length > 0 ? fact.keywords : tokenize(fact.text);
+  }
+
+  protected targetTerms(_fact: Fact, jobPosting: JobPosting): readonly string[] {
+    return tokenize(jobPosting.responsibilities.join(" "));
   }
 }

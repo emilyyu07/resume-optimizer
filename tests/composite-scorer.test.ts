@@ -16,6 +16,14 @@ class ConstantScorer implements IScorer {
   score(): number {
     return this.constant;
   }
+
+  diagnostics() {
+    return {
+      scorerId: this.id,
+      score: this.constant,
+      details: {}
+    };
+  }
 }
 
 describe("CompositeScorer", () => {
