@@ -81,21 +81,24 @@ In strict compliance with the Waterloo Engineering Competition AI policy, we uti
 - **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
 
 **3. HTML Print Rendering Behavior**
-* **Specific Prompt Used:** *"What are the standard CSS `@page` directives required to force a modern web browser to print an HTML document strictly as an 8.5x11 US Letter-sized document without cutting off margins?"*
-* **Purpose:** Investigating CSS print specifications to ensure our Handlebars template (`resume.hbs`) scales correctly when printed by the judges.
-* **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
+
+- **Specific Prompt Used:** _"What are the standard CSS `@page` directives required to force a modern web browser to print an HTML document strictly as an 8.5x11 US Letter-sized document without cutting off margins?"_
+- **Purpose:** Investigating CSS print specifications to ensure our Handlebars template (`resume.hbs`) scales correctly when printed by the judges.
+- **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
 
 **4. System Architecture Brainstorming & Preliminary Scaffolding**
-* **Specific Prompt Used:** *"What are the best-practice architectural patterns (e.g., ETL pipelines) for designing a highly decoupled Node.js application that extracts JSON data, runs algorithmic scoring independently, and renders static HTML?"*
-* **Purpose:** To brainstorm the initial system architecture, define module boundaries, and outline project functionality and preliminary scaffolding before any code was written.
-* **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
+
+- **Specific Prompt Used:** _"What are the best-practice architectural patterns (e.g., ETL pipelines) for designing a highly decoupled Node.js application that extracts JSON data, runs algorithmic scoring independently, and renders static HTML?"_
+- **Purpose:** To brainstorm the initial system architecture, define module boundaries, and outline project functionality and preliminary scaffolding before any code was written.
+- **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
 
 **5. Error Resolution & Build Debugging**
-* **Specific Prompt Used:** *"Why is Vitest throwing a 'CJS build of Vite's Node API is deprecated' warning when running my test suite, and what does it mean?"*
-* **Purpose:** To research and understand a build-tool warning in our terminal output without having AI write a fix for us.
-* **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
 
-*Note: The prompts listed above represent our core research inquiries. Minor follow-up questions for clarification (e.g., "Can you explain the margin property in that CSS rule?") were also asked within these same context windows.*
+- **Specific Prompt Used:** _"Why is Vitest throwing a 'CJS build of Vite's Node API is deprecated' warning when running my test suite, and what does it mean?"_
+- **Purpose:** To research and understand a build-tool warning in our terminal output without having AI write a fix for us.
+- **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
+
+_Note: The prompts listed above represent our core research inquiries. Minor follow-up questions for clarification (e.g., "Can you explain the margin property in that CSS rule?") were also asked within these same context windows._
 
 ### Environmental Impact Estimation
 
@@ -106,5 +109,3 @@ Over the course of this weekend, our team executed an estimated **300 research q
 - **Carbon Emissions:** ~45 grams of $CO_2$ (Comparable to driving a standard gasoline car for ~0.1 miles).
 - **Energy Cost:** 99 watt-hours (0.099 kWh). At an average Ontario grid rate of 14¢/kWh, the total monetary energy cost is **~$0.014 (1.4 cents)**.
 - **Water Usage:** ~3,000 milliliters (3 liters) of evaporated fresh water cooling cost.
-
-By strictly prohibiting generative AI for code and deliverables, we kept our query footprint and environmental impact exceptionally low.
