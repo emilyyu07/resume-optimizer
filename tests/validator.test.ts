@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EvidenceValidator } from "../src/validator/EvidenceValidator";
 import { ResumeValidator } from "../src/validator/ResumeValidator";
 import { SchemaValidator } from "../src/validator/SchemaValidator";
+import { ValidationError } from "../src/validator/ValidationError";
 import { resumeFixture } from "./fixtures";
 
 describe("validators", () => {
@@ -63,5 +64,41 @@ describe("validators", () => {
     const schemaValidator = new SchemaValidator();
     expect(() => resumeValidator.validate(resumeFixture)).not.toThrow();
     expect(() => schemaValidator.validate(resumeFixture)).not.toThrow();
+  });
+
+  it("throws structured ValidationError for resume validation failures", () => {
+    const resumeValidator = new ResumeValidator();
+    const invalidResume = {
+      ...resumeFixture,
+      sections: resumeFixture.sections.filter((section) => section.type !== "summary")
+    };
+
+    try {
+      resumeValidator.validate(invalidResume);
+      throw new Error("expected validation to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      const validationError = error as ValidationError;
+      expect(validationError.code).toBe("resume_validation_failed");
+      expect(validationError.details.some((detail) => detail.code === "missing_required_sections")).toBe(true);
+    }
+  });
+
+  it("throws structured ValidationError for schema failures", () => {
+    const schemaValidator = new SchemaValidator();
+    const invalidSchemaInput = {
+      ...resumeFixture,
+      candidateId: ""
+    };
+
+    try {
+      schemaValidator.validate(invalidSchemaInput);
+      throw new Error("expected schema validation to fail");
+    } catch (error) {
+      expect(error).toBeInstanceOf(ValidationError);
+      const validationError = error as ValidationError;
+      expect(validationError.code).toBe("schema_validation_failed");
+      expect(validationError.details.length).toBeGreaterThan(0);
+    }
   });
 });

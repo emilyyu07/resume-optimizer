@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { Resume } from "../models/Resume";
+import { ValidationError, type ValidationErrorDetail } from "./ValidationError";
 
 const FactSchema = z.object({
   id: z.string(),
@@ -55,10 +56,12 @@ export class SchemaValidator {
   validate(input: unknown): Resume {
     const parsed = ResumeSchema.safeParse(input);
     if (!parsed.success) {
-      const details = parsed.error.issues
-        .map((issue) => `${issue.path.join(".") || "<root>"}: ${issue.message}`)
-        .join("; ");
-      throw new Error(`Schema validation failed: ${details}`);
+      const details: ValidationErrorDetail[] = parsed.error.issues.map((issue) => ({
+        code: `schema_${issue.code}`,
+        message: issue.message,
+        locations: [issue.path.join(".") || "<root>"]
+      }));
+      throw new ValidationError("Schema validation failed", details, "schema_validation_failed");
     }
     return parsed.data as Resume;
   }

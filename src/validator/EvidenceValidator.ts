@@ -1,4 +1,5 @@
 import type { Resume } from "../models/Resume";
+import { ValidationError, ValidationErrorDetail } from "./ValidationError";
 
 interface EvidenceInfo {
   readonly sourcePath: string;
@@ -68,38 +69,40 @@ export class EvidenceValidator {
       }
     }
 
-    const errors: string[] = [];
-    if (emptyEvidenceLocations.length > 0) {
-      errors.push(
-        `Facts with empty evidenceIds found:\n${emptyEvidenceLocations
-          .map((l) => `  section=${l.sectionId} entry=${l.entryId} fact=${l.factId} text="${l.factText}"`)
-          .join("\n")}`
-      );
+    const details: ValidationErrorDetail[] = [];
+
+    for (const l of emptyEvidenceLocations) {
+      details.push({
+        code: "empty_evidence",
+        message: "Fact has empty evidenceIds",
+        sectionId: l.sectionId,
+        entryId: l.entryId,
+        factId: l.factId
+      });
     }
 
-    if (missingIds.size > 0) {
-      errors.push(
-        `Missing evidence IDs referenced in resume:\n${[...missingIds.entries()]
-          .map(([id, contexts]) => `  ${id} referenced at ${contexts.map((c) => `${c.sectionId}/${c.entryId}/${c.factId}`).join(", ")}`)
-          .join("\n")}`
-      );
+    for (const [id, contexts] of missingIds.entries()) {
+      details.push({
+        code: "missing_evidence",
+        message: "Evidence id referenced in resume but missing from registry",
+        evidenceId: id,
+        locations: contexts.map((c) => `${c.sectionId}/${c.entryId}/${c.factId}`)
+      });
     }
 
-    if (mismatchedSnapshots.length > 0) {
-      errors.push(
-        `Evidence snapshot mismatches:\n${mismatchedSnapshots
-          .map(
-            (m) =>
-              `  ${m.evidenceId}: expected="${m.expected}" actual="${m.actual}" referencedAt=${m.locations
-                .map((c) => `${c.sectionId}/${c.entryId}/${c.factId}`)
-                .join(", ")}`
-          )
-          .join("\n")}`
-      );
+    for (const m of mismatchedSnapshots) {
+      details.push({
+        code: "snapshot_mismatch",
+        message: "Registry snapshot does not match resume fact snapshot",
+        evidenceId: m.evidenceId,
+        expected: m.expected,
+        actual: m.actual,
+        locations: m.locations.map((c) => `${c.sectionId}/${c.entryId}/${c.factId}`)
+      });
     }
 
-    if (errors.length > 0) {
-      throw new Error(`Evidence validation failed:\n${errors.join("\n\n")}`);
+    if (details.length > 0) {
+      throw new ValidationError("Evidence validation failed", details, "evidence_validation_failed");
     }
   }
 }
