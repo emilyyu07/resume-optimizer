@@ -64,6 +64,8 @@ node dist/cli/generate.js --candidate candidate.json --jobs formats/job_postings
 
 In strict compliance with the Waterloo Engineering Competition AI policy, we utilized free AI models **exclusively for research purposes**. No generative AI was used to write code, generate text, design slides, or create any project deliverables.
 
+**Disclaimer regarding GitHub Copilot:** GitHub Copilot's code auto-complete features were strictly disabled; Copilot Chat was used exclusively as a search engine for documentation.
+
 ### Disclosed AI Usage (Research Purposes Only)
 
 **1. Algorithmic Research (Jaccard vs. Cosine Similarity)**
@@ -79,10 +81,21 @@ In strict compliance with the Waterloo Engineering Competition AI policy, we uti
 - **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
 
 **3. HTML Print Rendering Behavior**
+* **Specific Prompt Used:** *"What are the standard CSS `@page` directives required to force a modern web browser to print an HTML document strictly as an 8.5x11 US Letter-sized document without cutting off margins?"*
+* **Purpose:** Investigating CSS print specifications to ensure our Handlebars template (`resume.hbs`) scales correctly when printed by the judges.
+* **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
 
-- **Specific Prompt Used:** _"What are the standard CSS `@page` directives required to force a modern web browser to print an HTML document strictly as an 8.5x11 US Letter-sized document without cutting off margins?"_
-- **Purpose:** Investigating CSS print specifications to ensure our Handlebars template (`resume.hbs`) scales correctly when printed by the judges.
-- **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
+**4. System Architecture Brainstorming & Preliminary Scaffolding**
+* **Specific Prompt Used:** *"What are the best-practice architectural patterns (e.g., ETL pipelines) for designing a highly decoupled Node.js application that extracts JSON data, runs algorithmic scoring independently, and renders static HTML?"*
+* **Purpose:** To brainstorm the initial system architecture, define module boundaries, and outline project functionality and preliminary scaffolding before any code was written.
+* **Model & Platform:** Claude 3.5 Sonnet (Free tier accessed via Anthropic web interface)
+
+**5. Error Resolution & Build Debugging**
+* **Specific Prompt Used:** *"Why is Vitest throwing a 'CJS build of Vite's Node API is deprecated' warning when running my test suite, and what does it mean?"*
+* **Purpose:** To research and understand a build-tool warning in our terminal output without having AI write a fix for us.
+* **Model & Platform:** Gemini 1.5 Flash (Free tier accessed via Google AI Studio)
+
+*Note: The prompts listed above represent our core research inquiries. Minor follow-up questions for clarification (e.g., "Can you explain the margin property in that CSS rule?") were also asked within these same context windows.*
 
 ### Environmental Impact Estimation
 
