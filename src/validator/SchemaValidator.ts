@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type { Resume } from "../models/Resume";
+import { ValidationError, type ValidationErrorDetail } from "./ValidationError";
 
 const FactSchema = z.object({
   id: z.string(),
@@ -8,7 +9,13 @@ const FactSchema = z.object({
   sourceType: z.enum(["experience", "project", "certification", "education", "skill", "summary"]),
   parentId: z.string(),
   keywords: z.array(z.string()),
-  metadata: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
+  metadata: z
+    .object({
+      sourcePath: z.string().min(1),
+      sourceField: z.string().min(1),
+      sourceSnapshot: z.string()
+    })
+    .catchall(z.union([z.string(), z.number(), z.boolean(), z.null()])),
   score: z.number(),
   evidenceIds: z.array(z.string())
 });
@@ -49,10 +56,12 @@ export class SchemaValidator {
   validate(input: unknown): Resume {
     const parsed = ResumeSchema.safeParse(input);
     if (!parsed.success) {
-      const details = parsed.error.issues
-        .map((issue) => `${issue.path.join(".") || "<root>"}: ${issue.message}`)
-        .join("; ");
-      throw new Error(`Schema validation failed: ${details}`);
+      const details: ValidationErrorDetail[] = parsed.error.issues.map((issue) => ({
+        code: `schema_${issue.code}`,
+        message: issue.message,
+        locations: [issue.path.join(".") || "<root>"]
+      }));
+      throw new ValidationError("Schema validation failed", details, "schema_validation_failed");
     }
     return parsed.data as Resume;
   }

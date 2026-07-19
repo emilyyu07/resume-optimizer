@@ -24,3 +24,4 @@ export * from "./renderer/JsonRenderer";
 export * from "./validator/EvidenceValidator";
 export * from "./validator/ResumeValidator";
 export * from "./validator/SchemaValidator";
+export * from "./validator/ValidationError";

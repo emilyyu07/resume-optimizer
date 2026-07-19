@@ -62,7 +62,13 @@ export const factsFixture: readonly Fact[] = [
     sourceType: "experience",
     parentId: "exp-1",
     keywords: ["typescript", "apis", "requests", "day"],
-    metadata: { title: "Software Engineer", company: "Acme" },
+    metadata: {
+      sourcePath: "experiences.exp-1.bullets.0",
+      sourceField: "bullet",
+      sourceSnapshot: "Built TypeScript APIs handling 1M requests per day.",
+      title: "Software Engineer",
+      company: "Acme"
+    },
     score: 0.8,
     evidenceIds: ["experience:exp-1:bullet:0"]
   },
@@ -72,7 +78,12 @@ export const factsFixture: readonly Fact[] = [
     sourceType: "project",
     parentId: "proj-1",
     keywords: ["implemented", "cli", "evidence", "tracking"],
-    metadata: { name: "Resume Optimizer" },
+    metadata: {
+      sourcePath: "projects.proj-1.bullets.0",
+      sourceField: "bullet",
+      sourceSnapshot: "Implemented CLI workflows with evidence tracking.",
+      name: "Resume Optimizer"
+    },
     score: 0.5,
     evidenceIds: ["project:proj-1:bullet:0"]
   }
@@ -141,7 +152,12 @@ export const resumeFixture: Resume = {
               sourceType: "summary",
               parentId: "candidate-1",
               keywords: ["backend", "engineer", "api", "design", "reliability"],
-              metadata: { candidateName: "Alex Candidate" },
+              metadata: {
+                sourcePath: "summary",
+                sourceField: "summary",
+                sourceSnapshot: "Backend engineer with API design and reliability experience.",
+                candidateName: "Alex Candidate"
+              },
               score: 0.6,
               evidenceIds: ["summary:candidate-1"]
             }
@@ -166,7 +182,13 @@ export const resumeFixture: Resume = {
               sourceType: "skill",
               parentId: "skill-1",
               keywords: ["typescript"],
-              metadata: { category: null, proficiency: null },
+              metadata: {
+                sourcePath: "skills.skill-1.name",
+                sourceField: "name",
+                sourceSnapshot: "TypeScript",
+                category: null,
+                proficiency: null
+              },
               score: 0.5,
               evidenceIds: ["skill:skill-1"]
             }
